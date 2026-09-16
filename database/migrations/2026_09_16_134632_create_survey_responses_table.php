@@ -13,21 +13,11 @@ return new class extends Migration
     {
         Schema::create('survey_responses', function (Blueprint $table) {
             $table->id();
-
-            // Data responden
             $table->string('name');
-            $table->string('email');
-            $table->string('phone')->nullable();
-            $table->string('address')->nullable();
-
-            // Jawaban survey. Ganti/ tambah kolom di bawah ini sesuai pertanyaan
-            // yang sudah fix, atau simpan di kolom JSON `answers` bila pertanyaan
-            // masih sering berubah.
-            $table->string('question_1')->nullable();
-            $table->string('question_2')->nullable();
-            $table->text('question_3')->nullable();
-            $table->json('answers')->nullable();
-
+            $table->date('birth_date');
+            $table->string('nickname');
+            $table->string('phone');
+            $table->json('answers');
             $table->timestamps();
         });
     }

@@ -1,9 +1,63 @@
 @import 'tailwindcss';
 
+[x-cloak] {
+    display: none !important;
+}
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.btn-primary {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    text-align: center;
+    font-weight: 600;
+    color: white;
+    background-color: var(--accent, #111827);
+    border-radius: var(--radius, 12px);
+    transition:
+        transform 0.15s ease,
+        filter 0.15s ease;
+}
+
+.btn-primary:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+.form-input {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: calc(var(--radius, 12px) * 0.5);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--accent, #111827);
+    box-shadow: 0 0 0 1px var(--accent, #111827);
+}
+
+.option-card {
+    display: block;
+    cursor: pointer;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: calc(var(--radius, 12px) * 0.6);
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.option-card:has(input:checked) {
+    border-color: var(--accent, #111827);
+    background-color: color-mix(in srgb, var(--accent, #111827) 8%, white);
 }

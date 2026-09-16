@@ -8,16 +8,14 @@ class SurveyResponse extends Model
 {
     protected $fillable = [
         'name',
-        'email',
+        'birth_date',
+        'nickname',
         'phone',
-        'address',
-        'question_1',
-        'question_2',
-        'question_3',
         'answers',
     ];
 
     protected $casts = [
+        'birth_date' => 'date',
         'answers' => 'array',
     ];
 }
