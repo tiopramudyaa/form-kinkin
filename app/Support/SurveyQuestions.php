@@ -7,7 +7,10 @@ class SurveyQuestions
     /**
      * Ordered survey questions, 1-indexed to match the `/survey/pertanyaan/{nomor}` route.
      *
-     * @return array<int, array{key: string, question: string, options: array<string, string>, has_other: bool}>
+     * `my_pick` is the option letter that triggers the "sama kayak aku!" easter egg on the
+     * question page — set it to your own real favorite per question, or null to disable it.
+     *
+     * @return array<int, array{key: string, question: string, options: array<string, string>, has_other: bool, my_pick: ?string}>
      */
     public static function all(): array
     {
@@ -16,12 +19,13 @@ class SurveyQuestions
                 'key' => 'makanan_favorit',
                 'question' => 'Makanan favorit kinkin apa nih?',
                 'options' => [
-                    'A' => 'Makanan berat',
+                    'A' => 'Makanan asin',
                     'B' => 'Cemilan/jajanan',
                     'C' => 'Makanan manis',
                     'D' => 'Lainnya',
                 ],
                 'has_other' => true,
+                'my_pick' => 'C',
             ],
             2 => [
                 'key' => 'minuman_favorit',
@@ -35,6 +39,7 @@ class SurveyQuestions
                     'F' => 'Lainnya',
                 ],
                 'has_other' => true,
+                'my_pick' => 'A',
             ],
             3 => [
                 'key' => 'hobi',
@@ -47,6 +52,7 @@ class SurveyQuestions
                     'E' => 'Lainnya',
                 ],
                 'has_other' => true,
+                'my_pick' => null,
             ],
             4 => [
                 'key' => 'hewan_favorit',
@@ -58,6 +64,7 @@ class SurveyQuestions
                     'D' => 'Lainnya',
                 ],
                 'has_other' => true,
+                'my_pick' => 'A',
             ],
             5 => [
                 'key' => 'genre_film',
@@ -67,12 +74,14 @@ class SurveyQuestions
                     'B' => 'Komedi',
                     'C' => 'Romance',
                     'D' => 'Drama Cina di Reels TikTok',
+                    'E' => 'Lainnya',
                 ],
-                'has_other' => false,
+                'has_other' => true,
+                'my_pick' => null,
             ],
             6 => [
                 'key' => 'pernah_ilang_barang',
-                'question' => 'Pernah nggak kinkin ilang hp/laptop di asrama?',
+                'question' => 'Pernah nggak kinkin ileg hp/laptop di asrama?',
                 'options' => [
                     'A' => 'Pernah banget',
                     'B' => 'Pernah aja',
@@ -81,6 +90,7 @@ class SurveyQuestions
                     'E' => 'Rill gapernah',
                 ],
                 'has_other' => false,
+                'my_pick' => null,
             ],
             7 => [
                 'key' => 'berantem_suster',
@@ -92,6 +102,7 @@ class SurveyQuestions
                     'D' => 'Sering banget',
                 ],
                 'has_other' => false,
+                'my_pick' => null,
             ],
             8 => [
                 'key' => 'pelajaran_favorit',
@@ -105,6 +116,7 @@ class SurveyQuestions
                     'F' => 'Lainnya',
                 ],
                 'has_other' => true,
+                'my_pick' => null,
             ],
             9 => [
                 'key' => 'cita_cita',
@@ -116,6 +128,7 @@ class SurveyQuestions
                     'D' => 'Lainnya',
                 ],
                 'has_other' => true,
+                'my_pick' => null,
             ],
             10 => [
                 'key' => 'kalau_bosen',
@@ -127,6 +140,20 @@ class SurveyQuestions
                     'D' => 'Lainnya',
                 ],
                 'has_other' => true,
+                'my_pick' => null,
+            ],
+            11 => [
+                'key' => 'tempat_ngedate',
+                'question' => 'Kalau ngedate, lebih suka kemana?',
+                'options' => [
+                    'A' => 'Cafe',
+                    'B' => 'Nonton bioskop',
+                    'C' => 'Mall/jalan-jalan',
+                    'D' => 'Taman/outdoor',
+                    'E' => 'Lainnya',
+                ],
+                'has_other' => true,
+                'my_pick' => null,
             ],
         ];
     }

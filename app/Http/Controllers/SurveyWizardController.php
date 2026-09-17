@@ -41,7 +41,7 @@ class SurveyWizardController extends Controller
 
     public function siap(int $level): View|RedirectResponse
     {
-        abort_unless($level >= 1 && $level <= 5, 404);
+        abort_unless($level >= 1 && $level <= 7, 404);
 
         if ($level > 1 && ! session('survey.data')) {
             return redirect()->route('survey.data-diri');
@@ -50,39 +50,51 @@ class SurveyWizardController extends Controller
         $content = [
             1 => [
                 'emoji' => '📋',
-                'title' => 'Sebelum lanjut...',
-                'body' => 'Survey ini cuma butuh waktu beberapa menit kok. Yuk isi dengan jujur ya.',
+                'title' => 'Sebelum Melanjutkan',
+                'body' => 'Survey ini membutuhkan waktu sekitar 5 menit. Mohon isi dengan jujur dan sesuai keadaan sebenarnya.',
                 'cta' => 'Saya Siap',
             ],
             2 => [
-                'emoji' => '🤔',
-                'title' => 'Apakah kamu benar-benar siap?',
-                'body' => 'Soalnya abis ini agak beda dari form-form biasanya lho...',
-                'cta' => 'Iya, aku siap!',
+                'emoji' => '📌',
+                'title' => 'Apakah Anda Siap?',
+                'body' => 'Mohon pastikan kembali kesiapan Anda sebelum melanjutkan ke tahap berikutnya.',
+                'cta' => 'Ya, Saya Siap',
             ],
             3 => [
-                'emoji' => '😳',
-                'title' => 'APAKAH KAMU BENAR-BENAR SIAP???',
-                'body' => 'Serius nih, yakin? 👀',
-                'cta' => 'YAKIN BANGET',
+                'emoji' => '🤔',
+                'title' => 'Beneran kinkin siap?',
+                'body' => 'Soalnya abis ini bakal rada beda nih dari form-form biasanya...',
+                'cta' => 'Iya, aku siap',
             ],
             4 => [
-                'emoji' => '😏',
-                'title' => 'Oke, aku tau kamu siap',
-                'body' => 'Habis ini gak bisa balik lagi ya wkwk',
-                'cta' => 'Gaskeun',
+                'emoji' => '😳',
+                'title' => 'BENERAN YAAA KLO KINKIN SIAP?',
+                'body' => 'Yakin nih? Habis ini gak bisa balik lagi lho... 👀',
+                'cta' => 'YAKIN BANGET',
             ],
             5 => [
                 'emoji' => '🥳',
-                'title' => 'Wkwkwk beneran siap nih?',
-                'body' => 'Oke, kita mulai survey serunya!',
+                'title' => 'Wkwkwk oke deh, aku tau kinkin siap!',
+                'body' => 'Yuk, kita mulai survey serunya! 🎉',
                 'cta' => 'Mulai Survey!',
+            ],
+            6 => [
+                'emoji' => '🤨',
+                'title' => 'Tapi yakin kan kinkin siap???',
+                'body' => 'Coba dipikir sekali lagi deh sebelum lanjut...',
+                'cta' => 'Yakin, Lanjut',
+            ],
+            7 => [
+                'emoji' => '🤪',
+                'title' => 'OKEEEE KELIATAN DAH SIAP BANGET KINKIN, YUKK KITA MULAII',
+                'body' => 'Oke fix ya, nggak boleh mundur lagi lho abis ini! 😆',
+                'cta' => 'Siap, Lanjut!',
             ],
         ][$level];
 
         $next = $level === 1
             ? route('survey.data-diri')
-            : ($level < 5
+            : ($level < 7
                 ? route('survey.siap', ['level' => $level + 1])
                 : route('survey.question', ['nomor' => 1]));
 
@@ -133,12 +145,35 @@ class SurveyWizardController extends Controller
             return redirect()->route('survey.question', ['nomor' => 1]);
         }
 
+        $back = $nomor > 1
+            ? route('survey.question', ['nomor' => $nomor - 1])
+            : route('survey.siap', ['level' => 7]);
+
+        $stickers = ['⭐', '🌸', '🎀', '🍭', '🌟', '🤪', '🦄', '🍬', '🎈'];
+        $total = count($questions);
+        $ratio = $nomor / $total;
+
+        $milestone = match (true) {
+            $nomor === $total => '🎉 Ini pertanyaan terakhir!',
+            $ratio >= 0.75 => 'Tinggal dikit lagi! 🔥',
+            $ratio >= 0.5 => 'Setengah jalan! 🎉',
+            $ratio >= 0.25 => 'Lagi seru nih~ 😄',
+            default => null,
+        };
+
         return view('survey.question', [
             'title' => "Pertanyaan {$nomor}",
             'progress' => SurveyTheme::progressFor("q-{$nomor}"),
             'nomor' => $nomor,
-            'total' => count($questions),
+            'total' => $total,
             'question' => $questions[$nomor],
+            'back' => $back,
+            'sticker' => $stickers[($nomor - 1) % count($stickers)],
+            'selected' => session("survey.raw.{$nomor}", []),
+            'floatEmoji' => '⭐',
+            'milestone' => $milestone,
+            'reaction' => session()->pull('survey.reaction'),
+            'easterEgg' => session()->pull('survey.easter_egg', false),
         ]);
     }
 
@@ -167,7 +202,20 @@ class SurveyWizardController extends Controller
             $answer = $validated['other'];
         }
 
-        session(["survey.answers.{$question['key']}" => $answer]);
+        session([
+            "survey.answers.{$question['key']}" => $answer,
+            "survey.raw.{$nomor}" => $validated,
+        ]);
+
+        $reactions = [
+            'Sip, keren! 😄', 'Ih relate! 🤭', 'Wih mantap! 👍',
+            'Noted ya~ 📝', 'Hehe oke oke 😆', 'Wah baru tau nih! 👀',
+        ];
+        session()->flash('survey.reaction', $reactions[array_rand($reactions)]);
+
+        if ($question['my_pick'] !== null && $validated['choice'] === $question['my_pick']) {
+            session()->flash('survey.easter_egg', true);
+        }
 
         $next = $nomor < count($questions)
             ? route('survey.question', ['nomor' => $nomor + 1])
@@ -200,7 +248,10 @@ class SurveyWizardController extends Controller
             'answers' => session('survey.answers', []),
         ]);
 
+        $name = session('survey.data.name');
+
         session()->forget('survey');
+        session(['certificate_name' => $name]);
 
         return redirect()->route('survey.finish');
     }
@@ -210,6 +261,7 @@ class SurveyWizardController extends Controller
         return view('survey.finish', [
             'title' => 'Selesai!',
             'progress' => SurveyTheme::progressFor('finish'),
+            'name' => session('certificate_name'),
         ]);
     }
 }

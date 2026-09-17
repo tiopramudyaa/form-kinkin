@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\SurveyResponseController;
 use App\Http\Controllers\SurveyWizardController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,3 +28,14 @@ Route::get('/survey/wa', [SurveyWizardController::class, 'wa'])->name('survey.wa
 Route::post('/survey/wa', [SurveyWizardController::class, 'waStore'])->name('survey.wa.store');
 
 Route::get('/survey/selesai', [SurveyWizardController::class, 'finish'])->name('survey.finish');
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/login', [AdminAuthController::class, 'create'])->name('login');
+    Route::post('/login', [AdminAuthController::class, 'store'])->name('login.store');
+    Route::post('/logout', [AdminAuthController::class, 'destroy'])->name('logout');
+
+    Route::middleware('admin.auth')->group(function () {
+        Route::get('/responses', [SurveyResponseController::class, 'index'])->name('responses.index');
+        Route::get('/responses/{surveyResponse}', [SurveyResponseController::class, 'show'])->name('responses.show');
+    });
+});

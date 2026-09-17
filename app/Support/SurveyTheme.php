@@ -10,8 +10,8 @@ class SurveyTheme
      * @var list<string>
      */
     private const STEPS = [
-        'intro', 'syarat', 'siap-1', 'data-diri', 'siap-2', 'siap-3', 'siap-4', 'siap-5',
-        'q-1', 'q-2', 'q-3', 'q-4', 'q-5', 'q-6', 'q-7', 'q-8', 'q-9', 'q-10',
+        'intro', 'syarat', 'siap-1', 'data-diri', 'siap-2', 'siap-3', 'siap-4', 'siap-5', 'siap-6', 'siap-7',
+        'q-1', 'q-2', 'q-3', 'q-4', 'q-5', 'q-6', 'q-7', 'q-8', 'q-9', 'q-10', 'q-11',
         'wa', 'finish',
     ];
 
@@ -27,22 +27,25 @@ class SurveyTheme
     }
 
     /**
-     * Interpolates a color/shape palette between a formal look (0%) and a full romantic
-     * look (100%), passing through a playful midpoint so the page gradually feels cuter.
+     * Interpolates a color/shape palette across four stages: a Google-Forms-style formal
+     * look that holds steady through the early pages, then a playful midpoint, then a
+     * full romantic look by the end.
      *
-     * @return array{bg1: string, bg2: string, accent: string, text: string, radius: int, cute: bool, hearts: int}
+     * @return array{bg1: string, bg2: string, accent: string, text: string, radius: int, cute: bool, formal: bool, hearts: int}
      */
     public static function palette(int $progress): array
     {
         $progress = max(0, min(100, $progress));
 
         $stops = [
-            0 => ['bg1' => '#f8fafc', 'bg2' => '#eef2f7', 'accent' => '#111827', 'text' => '#111827'],
+            0 => ['bg1' => '#f0ebf8', 'bg2' => '#e8e0f5', 'accent' => '#673ab7', 'text' => '#202124'],
+            22 => ['bg1' => '#f0ebf8', 'bg2' => '#e8e0f5', 'accent' => '#673ab7', 'text' => '#202124'],
             55 => ['bg1' => '#fdf2f8', 'bg2' => '#fce7f3', 'accent' => '#db2777', 'text' => '#831843'],
             100 => ['bg1' => '#fda4af', 'bg2' => '#fb7185', 'accent' => '#e11d48', 'text' => '#881337'],
         ];
 
         $keys = array_keys($stops);
+        $colors = end($stops);
 
         for ($i = 0; $i < count($keys) - 1; $i++) {
             $from = $keys[$i];
@@ -54,27 +57,25 @@ class SurveyTheme
 
             $t = $to === $from ? 0 : ($progress - $from) / ($to - $from);
 
-            return [
+            $colors = [
                 'bg1' => self::lerpColor($stops[$from]['bg1'], $stops[$to]['bg1'], $t),
                 'bg2' => self::lerpColor($stops[$from]['bg2'], $stops[$to]['bg2'], $t),
                 'accent' => self::lerpColor($stops[$from]['accent'], $stops[$to]['accent'], $t),
                 'text' => self::lerpColor($stops[$from]['text'], $stops[$to]['text'], $t),
-                'radius' => (int) round(12 + ($progress / 100) * 28),
-                'cute' => $progress >= 55,
-                'hearts' => $progress >= 55 ? (int) round((($progress - 55) / 45) * 10) : 0,
             ];
+
+            break;
         }
 
-        $last = $stops[100];
+        // Corners stay crisp like a Google Form through the formal stage, then round out.
+        $radius = $progress < 22 ? 8 : (int) round(8 + (($progress - 22) / 78) * 32);
 
         return [
-            'bg1' => $last['bg1'],
-            'bg2' => $last['bg2'],
-            'accent' => $last['accent'],
-            'text' => $last['text'],
-            'radius' => 40,
-            'cute' => true,
-            'hearts' => 10,
+            ...$colors,
+            'radius' => $radius,
+            'cute' => $progress >= 55,
+            'formal' => $progress < 22,
+            'hearts' => $progress >= 55 ? (int) round((($progress - 55) / 45) * 10) : 0,
         ];
     }
 
